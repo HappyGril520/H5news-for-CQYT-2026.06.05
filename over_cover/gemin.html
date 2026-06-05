@@ -468,78 +468,81 @@
         /* =========================
            手机端适配（不影响PC）
         ========================= */
-        @media screen and (max-width: 768px) {
+@media screen and (max-width: 768px) {
 
             body {
                 overflow-x: hidden;
             }
 
-            /* 整体页面缩小 */
+            /* 核心修复：坚决不使用 scale 缩放，保持 1:1 的容器定位高度 */
             .content {
-                transform: scale(0.78); 
-                transform-origin: top center;
+                transform: none !important;
+                transform-origin: unset;
                 width: 100%;
                 left: 0;
             }
 
             /* 主标题 */
             .main-title {
-                font-size: 3.9rem !important;
-                width: 86%;
+                font-size: 2.5rem !important;
+                width: 90%;
+                top: 40px !important;
                 letter-spacing: 2px;
             }
 
             /* 章节标题 */
             .chapter-title {
-                font-size: 1.7rem !important;
-                width: 86%;
+                font-size: 1.5rem !important;
+                width: 90%;
             }
 
             /* 模糊文本框 */
             .section {
-                width: 80%;
-                padding: 16px 18px;
-                border-radius: 18px;
+                width: 90% !important;
+                max-width: 90%;
+                padding: 16px 20px !important;
+                border-radius: 16px;
             }
 
             /* 正文 */
             .text {
-                font-size: 1.2rem !important;
-                line-height: 1.45;
+                font-size: 1.1rem !important;
+                line-height: 1.6;
             }
 
             /* 更多按钮 */
             .more-btn {
-                font-size: 1rem;
+                font-size: 1.1rem !important;
             }
 
             /* 视频按钮 */
             .video-trigger-btn {
-                font-size: 1rem;
-                padding: 8px 22px;
+                font-size: 1.1rem !important;
+                padding: 10px 24px !important;
             }
 
             /* 清扫按钮 */
             .clean-action-btn {
-                font-size: 1rem;
-                padding: 8px 22px;
+                font-size: 1.1rem !important;
+                padding: 10px 24px !important;
             }
 
             /* 视频弹窗 */
             .video-modal-container {
-                width: 92vw;
-                border-radius: 20px;
+                width: 95vw !important;
+                border-radius: 16px;
             }
 
             #storyVideo {
                 width: 100%;
-                max-height: 72vh !important;
+                max-height: 60vh !important;
             }
 
             /* BGM按钮 */
             .bgm-anchor-panel {
-                transform: scale(0.78);
-                transform-origin: top right;
+                transform: none !important;
+                top: 16px;
+                right: 16px;
             }
 
             /* 滑动提示 */
