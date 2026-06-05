@@ -470,48 +470,101 @@
         ========================= */
         @media screen and (max-width: 768px) {
 
-            html {
-                font-size: 14px;
-            }
-
             body {
                 overflow-x: hidden;
             }
 
-            /* 主标题缩小 */
-            .main-title,
-            .news-title {
-                font-size: clamp(2rem, 8vw, 3.5rem) !important;
-                line-height: 1.2 !important;
-                text-align: center;
-                padding: 0 5vw;
+            /* 整体页面按比例缩小约1.2倍 */
+            .content {
+                transform: scale(0.83);
+                transform-origin: top center;
+                width: 120%;
+                left: -10%;
             }
 
-            /* 正文缩小 */
-            p,
-            .content-text,
-            .story-text {
-                font-size: 0.95rem !important;
-                line-height: 1.8 !important;
-                padding: 0 5vw;
+            /* 主标题额外压缩 */
+            .main-title {
+                font-size: 4.8rem !important;
+                width: 88%;
+                letter-spacing: 4px;
             }
 
-            /* 视频播放器 */
+            /* 章节标题缩小 */
+            .chapter-title {
+                font-size: 2.2rem !important;
+            }
+
+            /* 模糊文本框整体缩小 */
+            .section {
+                width: 84%;
+                padding: 22px 24px;
+                border-radius: 20px;
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+            }
+
+            /* 正文字号缩小 */
+            .text {
+                font-size: 1.55rem !important;
+                line-height: 1.75;
+            }
+
+            /* 更多按钮缩小 */
+            .more-btn {
+                font-size: 1.2rem;
+            }
+
+            /* 视频按钮缩小 */
+            .video-trigger-btn {
+                font-size: 1.25rem;
+                padding: 10px 28px;
+            }
+
+            /* 清扫按钮缩小 */
+            .clean-action-btn {
+                font-size: 1.2rem;
+                padding: 10px 28px;
+            }
+
+            /* 视频播放器缩小 */
+            .video-modal-container {
+                width: 92vw;
+                border-radius: 22px;
+            }
+
             #storyVideo {
-                width: 92vw !important;
-                max-height: 75vh !important;
+                width: 100%;
+                max-height: 72vh !important;
             }
 
-            /* 音乐按钮缩小 */
-            #bgmControlBtn {
-                transform: scale(0.82);
+            /* 弹窗缩小 */
+            .modal-window {
+                width: 92%;
+                padding: 24px;
+                border-radius: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.8rem;
+            }
+
+            .modal-body {
+                font-size: 1.3rem;
+            }
+
+            .modal-btn {
+                font-size: 1.2rem;
+            }
+
+            /* BGM按钮缩小 */
+            .bgm-anchor-panel {
+                transform: scale(0.78);
                 transform-origin: top right;
             }
 
-            /* 图片不要超出屏幕 */
-            img {
-                max-width: 100%;
-                height: auto;
+            /* 滑动提示缩小 */
+            .scroll-guide {
+                font-size: 1.15rem;
             }
         }
 
