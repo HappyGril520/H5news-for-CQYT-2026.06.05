@@ -5,8 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>洪流中的城科 · 视频特辑</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
         body {
             font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
             background: #000;
@@ -455,6 +464,57 @@
             background: linear-gradient(to right, #0055aa, #4adcff);
             z-index: 700; /* 进度条置于顶层 */
         }
+
+        /* =========================
+           手机端适配（不影响PC）
+        ========================= */
+        @media screen and (max-width: 768px) {
+
+            html {
+                font-size: 14px;
+            }
+
+            body {
+                overflow-x: hidden;
+            }
+
+            /* 主标题缩小 */
+            .main-title,
+            .news-title {
+                font-size: clamp(2rem, 8vw, 3.5rem) !important;
+                line-height: 1.2 !important;
+                text-align: center;
+                padding: 0 5vw;
+            }
+
+            /* 正文缩小 */
+            p,
+            .content-text,
+            .story-text {
+                font-size: 0.95rem !important;
+                line-height: 1.8 !important;
+                padding: 0 5vw;
+            }
+
+            /* 视频播放器 */
+            #storyVideo {
+                width: 92vw !important;
+                max-height: 75vh !important;
+            }
+
+            /* 音乐按钮缩小 */
+            #bgmControlBtn {
+                transform: scale(0.82);
+                transform-origin: top right;
+            }
+
+            /* 图片不要超出屏幕 */
+            img {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+
     </style>
 </head>
 <body>
