@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>洪流中的城科 · 视频特辑</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.85;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+        
+        body.modal-open {
+            overflow: hidden;
+        }
+        
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 1080px;
+            margin: 0 auto;
+            transition: filter 0.5s ease;
+            z-index: 1;
+        }
+        
+        .container.blur-bg {
+            filter: blur(8px);
+            pointer-events: none;
+        }
+        
+        .long-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+        
+        /* 新闻大标题 */
+        .main-title {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 6.2rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-align: center;
+            text-shadow: 0 0 25px rgba(0,0,0,0.9), 5px 5px 0 #000, -5px -5px 0 #000;
+            letter-spacing: 8px;
+            z-index: 30;
+            width: 92%;
+        }
+        
+        .chapter-title {
+            position: absolute;
+            font-size: 3.0rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-align: left;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+            width: 92%;
+            max-width: 920px;
+            z-index: 10; 
+        }
+        
+        .section {
+            position: absolute;
+            width: 92%;
+            max-width: 920px;
+            background: rgba(245, 248, 255, 0.35);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px rgba(255, 255, 255, 0.25) solid;
+            border-radius: 24px;
+            padding: 28px 32px;
+            pointer-events: auto;
+            opacity: 0;
+            transform: translate(-50%, 40px) !important; 
+            transition: opacity 1.0s cubic-bezier(0.215, 0.610, 0.355, 1.000), transform 1.0s cubic-bezier(0.215, 0.610, 0.355, 1.000);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 5; 
+        }
+        
+        .section.visible {
+            opacity: 1;
+            transform: translate(-50%, 0) !important;
+        }
+
+        /* 视差云层组件 */
+        .parallax-cloud {
+            position: absolute;
+            width: 100%;
+            height: auto;
+            pointer-events: none; 
+            z-index: 20; 
+            left: 0;
+            will-change: transform; 
+        }
+
+        /* 汽车图片按钮样式 */
+        .fin-car-button {
+            position: absolute;
+            pointer-events: none; 
+            z-index: 15;
+            cursor: pointer;
+        }
+
+        /* 汽车独立隐形点击热区层 */
+        .fin-car-hotspot {
+            position: absolute;
+            background: rgba(255, 0, 0, 0); 
+            cursor: pointer;
+            z-index: 16; 
+        }
+
+        /* 第五幕夹心覆盖图层（PG01、PG02） */
+        .clean-overlay-img {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: auto;
+            pointer-events: none; 
+            transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+            will-change: opacity;
+        }
+        #pg01-layer { z-index: 14; }
+        #pg02-layer { z-index: 13; }
+
+        /* 清扫交互按钮 */
+        .clean-action-btn {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(74, 220, 255, 0.85), rgba(0, 85, 170, 0.85));
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50px;
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 12px 40px;
+            cursor: pointer;
+            z-index: 17;
+            box-shadow: 0 8px 25px rgba(0, 85, 170, 0.5), inset 0 0 10px rgba(255,255,255,0.3);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+            transition: opacity 0.8s ease, transform 0.2s ease, background 0.3s ease;
+            white-space: nowrap;
+        }
+        .clean-action-btn:active {
+            transform: translateX(-50%) scale(0.95);
+            background: linear-gradient(135deg, rgba(74, 220, 255, 1), rgba(0, 85, 170, 1));
+        }
+        
+        #resetBtn {
+            background: linear-gradient(135deg, rgba(255, 180, 70, 0.9), rgba(200, 100, 20, 0.9));
+            border-color: rgba(255, 235, 140, 0.9);
+        }
+
+        /* ✨ 新增：第三幕专用居中视频触发按钮 */
+        .video-trigger-btn {
+            display: block;
+            width: fit-content;
+            margin: 20px auto 5px auto; /* 核心：左右auto实现完美水平居中 */
+            background: linear-gradient(135deg, rgba(74, 220, 255, 0.3), rgba(0, 85, 170, 0.5));
+            border: 2px solid rgba(74, 220, 255, 0.7);
+            border-radius: 50px;
+            color: #ffffff;
+            font-size: 1.7rem;
+            font-weight: bold;
+            padding: 10px 36px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 85, 170, 0.3);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+            letter-spacing: 1px;
+            transition: transform 0.2s ease, background 0.3s ease;
+            text-align: center;
+        }
+        .video-trigger-btn:active {
+            transform: scale(0.95);
+            background: linear-gradient(135deg, rgba(74, 220, 255, 0.5), rgba(0, 85, 170, 0.7));
+        }
+
+        /* ✨ 新增：BGM 置顶固定悬浮控制台 */
+        .bgm-anchor-panel {
+            position: fixed;
+            top: calc(16px + env(safe-area-inset-top)); /* 智能避让刘海屏与灵动岛 */
+            right: 16px;
+            z-index: 500; /* 确保悬浮在普通详情弹窗和内容之上 */
+            pointer-events: auto;
+        }
+        .bgm-circle-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.65);
+            border: 2px solid rgba(74, 220, 255, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+        /* 播放时的旋转动画 */
+        .bgm-circle-btn.playing {
+            animation: cdRotate 4s linear infinite;
+            border-color: rgba(74, 220, 255, 0.9);
+        }
+        @keyframes cdRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .bgm-svg-icon {
+            width: 22px;
+            height: 22px;
+            fill: #4adcff;
+            transition: fill 0.3s ease;
+        }
+        .bgm-circle-btn.muted .bgm-svg-icon {
+            fill: #aaaaaa;
+        }
+        .bgm-mute-line {
+            display: none;
+            stroke: #aaaaaa;
+            stroke-width: 2.5;
+        }
+        .bgm-circle-btn.muted .bgm-mute-line {
+            display: block;
+        }
+        
+        /* 视频浮窗专属样式 */
+        .video-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 600; /* 视频弹窗需高于 BGM 按钮 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            padding: 20px;
+        }
+        .video-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .video-modal-container {
+            position: relative;
+            width: 100%;
+            max-width: 95%;
+            max-height: 90%;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            background: #000;
+            transform: scale(0.92);
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .video-modal-overlay.active .video-modal-container {
+            transform: scale(1);
+        }
+        .video-player {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 85vh;
+            object-fit: contain;
+            cursor: pointer;
+        }
+        @media (min-aspect-ratio: 1/1) {
+            .video-modal-container {
+                max-width: min(90vw, 70vh);
+            }
+        }
+        .video-close-btn {
+            position: absolute;
+            top: -40px;
+            right: -10px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .video-close-btn:hover {
+            background: rgba(255,50,50,0.9);
+            transform: scale(1.05);
+            border-color: white;
+        }
+        @media (max-width: 768px) {
+            .video-close-btn {
+                top: -50px;
+                right: -5px;
+                width: 40px;
+                height: 40px;
+                font-size: 26px;
+            }
+        }
+        
+        .text {
+            font-family: "SimSun", "STSong", serif;
+            font-size: 2.1rem;
+            font-weight: normal;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+            text-align: left;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .highlight {
+            color: #4adcff;
+            font-weight: bold;
+        }
+        
+        .more-btn {
+            display: inline-block;
+            margin-top: 15px;
+            color: #4adcff;
+            font-size: 1.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: underline;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* 原文本详情浮窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-window {
+            background: rgba(25, 30, 40, 0.96);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            width: 95%;
+            max-width: 720px;
+            max-height: 80vh;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            transform: scale(0.92);
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .modal-overlay.active .modal-window {
+            transform: scale(1);
+        }
+        .modal-title {
+            font-size: 2.6rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 12px;
+        }
+        .modal-body {
+            font-family: "SimSun", "STSong", serif;
+            font-size: 2.1rem;
+            font-weight: normal;
+            color: #eee;
+            overflow-y: auto;
+            line-height: 1.85;
+            padding-right: 10px;
+        }
+        .modal-btn {
+            margin-top: 25px;
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 14px 0;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: opacity 0.2s, background 0.2s;
+            width: 100%;
+        }
+        
+        .scroll-guide {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #e0e6ed;
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.9);
+            z-index: 25; 
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(20px); }
+        }
+        
+        .progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(to right, #0055aa, #4adcff);
+            z-index: 700; /* 进度条置于顶层 */
+        }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+    
+    <audio id="mainAudio" src="BGM.mp3" preload="auto"></audio>
+
+    <div class="bgm-anchor-panel">
+        <div id="bgmControlBtn" class="bgm-circle-btn" onclick="handleBgmToggle()">
+            <svg class="bgm-svg-icon" viewBox="0 0 24 24">
+                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                <line class="bgm-mute-line" x1="3" y1="3" x2="21" y2="21" stroke="#aaaaaa" />
+            </svg>
+        </div>
+    </div>
+    
+    <div class="container" id="mainContainer">
+        <img src="fin.jpg" alt="长图" class="long-image" id="longImage">
+        
+        <div class="content" id="content">
+            <div class="main-title">洪流中的城科</div>
+            
+            <img src="cloud.png" alt="云层过渡" class="parallax-cloud" id="cloud1">
+            <img src="cloud.png" alt="云层过渡" class="parallax-cloud" id="cloud2">
+            <img src="cloud.png" alt="云层过渡" class="parallax-cloud" id="cloud3">
+            <img src="cloud.png" alt="云层过渡" class="parallax-cloud" id="cloud4">
+            <img src="cloud2.png" alt="云层结尾过渡" class="parallax-cloud" id="cloud5">
+
+            <img src="fin_car.png" alt="视频节点" class="fin-car-button" id="finCarImg">
+            <div class="fin-car-hotspot" id="finCarHotspot" onclick="openVideoModal('part4_v01.mp4')"></div>
+
+            <img src="PG01.png" alt="清扫图层1" class="clean-overlay-img" id="pg01-layer">
+            <img src="PG02.png" alt="清扫图层2" class="clean-overlay-img" id="pg02-layer">
+            <button class="clean-action-btn" id="cleanBtn" onclick="handleCleanAction()">✨ 点击清扫</button>
+            <button class="clean-action-btn" id="resetBtn" style="display:none;" onclick="resetCleanInteraction()">🔄 再次挑战</button>
+            
+            <div class="chapter-title" id="part1-title">第一幕 · 暴雨惊梦</div>
+            <div class="section" id="part1-section">
+                <div class="text" id="t1">
+                    <span class="highlight">重庆城市科技学院</span>。<span class="highlight">凌晨1点</span>，雨开始下。起初只是淅淅沥沥，很快变成暴雨倾盆。闪电撕裂夜空，雷声像炮弹一样砸进窗户。“寝室的玻璃被打得一直响，雨跟子弹一样，又大又密。”<span class="highlight">凌晨2点</span>，<span class="highlight">永川区气象台</span>发布暴雨红色预警。接下来<span class="highlight">两个小时</span>里，降雨量将飙升至<span class="highlight">296.6毫米</span>，打破当地纪录。
+                </div>
+                <div class="more-btn" onclick="openModal('第一幕 · 暴雨惊梦', 't1')">详情显示</div>
+            </div>
+            
+            <div class="chapter-title" id="part2-title">第二幕 · 洪水围城</div>
+            <div class="section" id="part2-section">
+                <div class="text" id="t2">
+                    <span class="highlight">凌晨 2:00 – 4:00</span>，降雨峰值。<span class="highlight">小安溪</span>的水位以肉眼可见的速度疯涨。河水漫过堤岸，裹挟着泥沙、树枝和杂物，向校园低洼地带戏卷而来。沿河道路最先沦陷。停在路边的车辆被洪水吞噬——先是轮胎，然后是车身，最后"被淹得只能看到车顶"。<span class="highlight">校园周围的农田</span>"被淹了一两米"，整个视野变成一片浑浊的汪洋。<span class="highlight">一楼寝室</span>开始进水。<span class="highlight">两万名</span>在校师生，在黑暗中听着水声一点点逼近。一名在校生说："学校周围很多车遭遇水淹，<span class="highlight">跳石河</span>的水一下子涨了<span class="highlight">两三米</span>，那个速度太快了，根本来不及反应。"<span class="highlight">凌晨 4 点</span>，学校发布紧急通知：全面断水、断电、断气。这不是一场演习。这场暴雨最终在<span class="highlight">永川区</span>造成 <span class="highlight">3 人遇难</span>、<span class="highlight">17 人失联</span>。全区紧急避险转移 <span class="highlight">168 人</span>，紧急转移安置 <span class="highlight">82 人</span>。<span class="highlight">重庆市政府</span>紧急启动地质灾害三级应急响应，由公安、应急、消防等部门组成的 <span class="highlight">400 余人</span>救援抢险队伍火速赶赴现场。
+                </div>
+                <div class="more-btn" onclick="openModal('第二幕 · 洪水围城', 't2')">详情显示</div>
+            </div>
+            
+            <div class="chapter-title" id="part3-title">第三幕 · 紧急撤离</div>
+            <div class="section" id="part3-section">
+                <div class="text" id="t3">
+                    <span class="highlight">凌晨 4:00 起</span>，<span class="highlight">重庆城市科技学院</span>全校停课，无限期。黑暗中，<span class="highlight">两万多名学生</span>开始收拾行李。没有灯，手机电量所剩无几。他们背上书包，卷起裤腿，蹚着齐膝的积水和淤泥，沿着地势较高的公路一侧排队撤离。<span class="highlight">校门口</span>，工程车正在清淤。拖车一辆接一辆地把泡在水里的轿车拖走。有记者当晚赶到现场，发现<span class="highlight">街道深处</span>的淤泥仍然"没过脚踝"。学校发出通知：在报备后可以离校返家。一名学生对<span class="highlight">华商报</span>记者说："学校已经停水停电，正组织大家有序撤离到附近旅店等地方暂时住下来。"冰冷的泥水，漆黑的走廊，<span class="highlight">两万人的步伐</span>——那是城科历史上最漫长的一个早晨。
+                </div>
+                <div class="more-btn" onclick="openModal('第三幕 · 紧急撤离', 't3')">详情显示</div>
+                
+                <div class="video-trigger-btn" onclick="openVideoModal('part3_v01.mp4')">🎬 观看现场特辑</div>
+            </div>
+            
+            <div class="chapter-title" id="part4-title">第四幕 · 灯火微光</div>
+            <div class="section" id="part4-section">
+                <div class="text" id="t4">
+                    <span class="highlight">凌晨 4:00 – 6:00</span>，洪水最深的时候，一盏灯亮着。在<span class="highlight">校门外的烧烤店</span>里，一对经营淄博烧烤的年轻夫妻，做出了一个决定。住在烧烤店楼上的<span class="highlight">王同学</span>，一直在观察<span class="highlight">小安溪</span>的水位。仅仅<span class="highlight">一个多小时</span>里，路边停放的车辆就被完全淹没。她立即通知了楼下的夫妻俩。<span class="highlight">凌晨 4 点</span>，他们第一次尝试开车撤离。洪水堵住了所有出口，只能原路折返。水位还在涨。等到<span class="highlight">凌晨 6 点</span>，他们发动引擎，第二次冲进洪水。"那时候水位已经到了车前盖，路上很多车都熄火了。"<span class="highlight">王同学</span>回忆，"哥哥姐姐把车当船开，才终于成功离开。"夫妻俩把<span class="highlight">王同学</span>带回自己家，收拾好床铺，递上新牙刷，塞满零食。洪水退后，<span class="highlight">王同学</span>找到住处要离开时，他们又塞了一大袋零食。"哥哥姐姐冒着车报废的风险带我出去，我真的会记一辈子他们的大恩。"洪水过后，街道恢复供水供电，道路淤泥清理完毕。那张烧烤店的门面依然开着，灯光依然亮着。故事的结尾没有英雄披风，只有<span class="highlight">两个普通人</span>，<span class="highlight">一辆车</span>，和一颗愿意冒险的心。
+                </div>
+                <div class="more-btn" onclick="openModal('第四幕 · 灯火微光', 't4')">详情显示</div>
+            </div>
+            
+            <div class="chapter-title" id="part5-title">第五幕 · 雨后新生</div>
+            <div class="section" id="part5-section">
+                <div class="text" id="t5">
+                    <span class="highlight">5 月 24 日下午 – 5 月 26 日</span>。当暴雨终于停歇，灾后重建的战斗正式打响。由<span class="highlight">中国安能三局重庆救援基地、重庆市专业应急救援总队、重庆市专业应急救援永川支队、国家隧道应急救援中国交建重庆队</span>等组成的 <span class="highlight">400 余人</span>救援力量，全力开展搜救。<span class="highlight">5 月 24 日下午 2 时</span>——距离暴雨峰值仅 <span class="highlight">10 小时</span>——校内积水基本消退。工作人员随即启动全范围的清淤、消杀和场地清理工作。学校通知：<span class="highlight">周一</span>临时停课。随后更新为：全校停课，期限不限。<span class="highlight">5 月 26 日</span>，断水断电<span class="highlight">两天</span>的校园终于全面恢复供电供水。道路恢复通行，学生陆续返校。<span class="highlight">小安溪</span>重新归于平静。河面上，一只白鹭掠过，飞向东升的太阳。这座城市没有被打倒。<span class="highlight">两万名城科人</span>，经历了人生中最大的一场雨，也见证了这片土地上最温暖的几束光。
+                </div>
+                <div class="more-btn" onclick="openModal('第五幕 · 雨后新生', 't5')">详情显示</div>
+            </div>
+            
+            <div class="scroll-guide" id="scrollGuide1">↓ 向下滑动 继续观看</div>
+            <div class="scroll-guide" id="scrollGuide2">↓ 向下滑动 继续观看</div>
+            <div class="scroll-guide" id="scrollGuide3">↓ 向下滑动 继续观看</div>
+            <div class="scroll-guide" id="scrollGuide4">↓ 向下滑动 继续观看</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-window">
+            <div class="modal-title" id="modalTitle">章节标题</div>
+            <div class="modal-body" id="modalBody">正文内容</div>
+            <button class="modal-btn" onclick="closeModal()">确 认</button>
+        </div>
+    </div>
+
+    <div class="video-modal-overlay" id="videoModalOverlay">
+        <div class="video-modal-container">
+            <button class="video-close-btn" onclick="closeVideoModal()">✕</button>
+            <video 
+                id="storyVideo" 
+                class="video-player" 
+                controls 
+                playsinline
+                webkit-playsinline
+                x5-playsinline
+                preload="metadata">
+                <source src="" type="video/mp4">
+                您的浏览器不支持 video 标签。
+            </video>
+        </div>
+    </div>
+
+    <script>
+        const image = document.getElementById('longImage');
+        const progressBar = document.getElementById('progress');
+        const mainContainer = document.getElementById('mainContainer');
+        const detailModal = document.getElementById('detailModal');
+        const videoModalOverlay = document.getElementById('videoModalOverlay');
+        const storyVideo = document.getElementById('storyVideo');
+        
+        const finCarImg = document.getElementById('finCarImg');
+        const finCarHotspot = document.getElementById('finCarHotspot');
+
+        const pg01Layer = document.getElementById('pg01-layer');
+        const pg02Layer = document.getElementById('pg02-layer');
+        const cleanBtn = document.getElementById('cleanBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        let targetBorders = []; 
+        let halfCloudPixels = 0;
+        let cleanCount = 0;               
+        let pg01Timer = null;             
+        let pg02Timer = null;             
+
+        // ========== ✨ 新增：BGM 全局核心业务状态机 ==========
+        const mainAudio = document.getElementById('mainAudio');
+        const bgmControlBtn = document.getElementById('bgmControlBtn');
+        
+        let isUserMuted = false;       // 用户是否点击按钮强制静音
+        let isVideoOpen = false;       // 是否有视频浮窗正在开启
+        let bgmCycleTimeout = null;    // 控制5秒间隔的定时器引用
+        let audioFadeInterval = null;  // 控制淡入淡出曲线的定时器
+
+        // 页面资源准备就绪后调度初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            mainAudio.volume = 0; // 初始化基础音量，准备淡入
+
+            // 1秒后延迟启动BGM
+            setTimeout(() => {
+                executeAudioPlay();
+            }, 1000);
+
+            // 移动端防自动播放拦截：只要用户触摸屏幕任意位置，且处于允许播放环境，则瞬时激活
+            const autoBurnishAudio = () => {
+                if (mainAudio.paused && !isUserMuted && !isVideoOpen) {
+                    executeAudioPlay();
+                }
+                document.removeEventListener('click', autoBurnishAudio);
+                document.removeEventListener('touchstart', autoBurnishAudio);
+            };
+            document.addEventListener('click', autoBurnishAudio);
+            document.addEventListener('touchstart', autoBurnishAudio);
+        });
+
+        // 核心播放控制兼顾 0.5 秒淡入逻辑
+        function executeAudioPlay() {
+            if (isUserMuted || isVideoOpen) return;
+
+            mainAudio.play().then(() => {
+                bgmControlBtn.classList.add('playing');
+                performAudioFadeIn(500); // 500毫秒平滑淡入
+            }).catch(err => {
+                console.log("[BGM引擎] 自动播放受浏览器安全机制拦截，等待人机交互唤醒: ", err);
+            });
+        }
+
+        // 0.5s 淡入底层算法实现
+        function performAudioFadeIn(duration) {
+            if (audioFadeInterval) clearInterval(audioFadeInterval);
+            mainAudio.volume = 0;
+            
+            const stepTime = 30; // 阶梯频率30ms
+            const stepIncrement = stepTime / duration;
+            let targetVol = 0;
+
+            audioFadeInterval = setInterval(() => {
+                targetVol += stepIncrement;
+                if (targetVol >= 1) {
+                    mainAudio.volume = 1;
+                    clearInterval(audioFadeInterval);
+                    audioFadeInterval = null;
+                } else {
+                    mainAudio.volume = targetVol;
+                }
+            }, stepTime);
+        }
+
+        // 核心：监听播放结束，静止5秒后再重播循环
+        mainAudio.addEventListener('ended', () => {
+            bgmControlBtn.classList.remove('playing'); // 间歇期停止CD转动动画
+            
+            bgmCycleTimeout = setTimeout(() => {
+                if (!isUserMuted && !isVideoOpen) {
+                    mainAudio.currentTime = 0;
+                    executeAudioPlay();
+                }
+            }, 5000); // 精确限制5秒停顿
+        });
+
+        // 用户主动点击右上角按钮静音/恢复控制
+        function handleBgmToggle() {
+            if (mainAudio.muted || isUserMuted) {
+                // 解除禁音
+                isUserMuted = false;
+                mainAudio.muted = false;
+                bgmControlBtn.classList.remove('muted');
+                
+                if (!isVideoOpen) {
+                    if (mainAudio.paused) {
+                        executeAudioPlay();
+                    } else {
+                        bgmControlBtn.add('playing');
+                    }
+                }
+            } else {
+                // 主动封禁声音
+                isUserMuted = true;
+                mainAudio.muted = true;
+                bgmControlBtn.classList.add('muted');
+                bgmControlBtn.classList.remove('playing');
+                if (audioFadeInterval) clearInterval(audioFadeInterval);
+            }
+        }
+
+        // ========== 清扫互动核心 ==========
+        function handleCleanAction() {
+            if (cleanCount === 0 || cleanCount === 1) {
+                cleanCount++;
+                if (cleanCount === 1) {
+                    if (pg01Timer) clearTimeout(pg01Timer);
+                    pg01Layer.style.opacity = '0';
+                    pg01Timer = setTimeout(() => {
+                        pg01Layer.style.display = 'none';
+                        pg01Timer = null;
+                    }, 1200);
+                    cleanBtn.innerText = '✨ 继续清扫';
+                } else if (cleanCount === 2) {
+                    if (pg02Timer) clearTimeout(pg02Timer);
+                    pg02Layer.style.opacity = '0';
+                    pg02Timer = setTimeout(() => {
+                        pg02Layer.style.display = 'none';
+                        pg02Timer = null;
+                    }, 1200);
+                    
+                    cleanBtn.style.opacity = '0';
+                    cleanBtn.style.pointerEvents = 'none';
+                    cleanBtn.style.display = 'none';
+                    
+                    resetBtn.style.display = 'block';
+                    resetBtn.style.opacity = '1';
+                    resetBtn.style.pointerEvents = 'auto';
+                }
+                console.log(`[清扫互动] 当前进度: ${cleanCount}/2 , 返回值: ${cleanCount}`);
+                return cleanCount;
+            } else {
+                console.warn("[清扫互动] 已完成全部清扫，如需重置请点击「再次挑战」");
+                return cleanCount;
+            }
+        }
+
+        function resetCleanInteraction() {
+            if (pg01Timer) { clearTimeout(pg01Timer); pg01Timer = null; }
+            if (pg02Timer) { clearTimeout(pg02Timer); pg02Timer = null; }
+            
+            pg01Layer.style.opacity = '';
+            pg01Layer.style.display = '';
+            pg02Layer.style.opacity = '';
+            pg02Layer.style.display = '';
+            
+            cleanBtn.style.display = '';
+            cleanBtn.style.opacity = '';
+            cleanBtn.style.pointerEvents = '';
+            cleanBtn.innerText = '✨ 点击清扫';
+            
+            resetBtn.style.display = 'none';
+            resetBtn.style.opacity = '';
+            resetBtn.style.pointerEvents = '';
+            
+            cleanCount = 0;
+            console.log("[清扫互动] 已重置，状态复原，可重新清扫。");
+            return true;
+        }
+
+        // ========== 🎬 视频弹窗重构逻辑 (带音频智能同步联动机制) ==========
+        function openVideoModal(videoSrc) {
+            if (!videoModalOverlay || !storyVideo) return;
+            
+            isVideoOpen = true;
+
+            // 联动：中断背景音乐的5秒等待链，挂起并暂停BGM，剔除偏转动画
+            if (bgmCycleTimeout) clearTimeout(bgmCycleTimeout);
+            if (audioFadeInterval) clearInterval(audioFadeInterval);
+            mainAudio.pause();
+            bgmControlBtn.classList.remove('playing');
+
+            // 动态注入视频地址并呈现弹窗
+            storyVideo.src = videoSrc;
+            videoModalOverlay.classList.add('active');
+            document.body.classList.add('modal-open');
+            
+            // 调度视频内核
+            storyVideo.load();
+            storyVideo.play().catch(e => {
+                console.log("[视频内核] 拦截自动流化播放，已交由原生控件备用", e);
+            });
+        }
+
+        function closeVideoModal() {
+            if (!videoModalOverlay || !storyVideo) return;
+            
+            storyVideo.pause();
+            storyVideo.src = ""; // 彻底切断地址，清空内存数据缓存流
+            
+            videoModalOverlay.classList.remove('active');
+            document.body.classList.remove('modal-open');
+
+            isVideoOpen = false;
+
+            // 联动恢复机制：只要用户之前没有主动开启全局禁音，退出视频后自动续播背景乐
+            if (!isUserMuted) {
+                // 给移动端UI留下300毫秒过渡弹窗关闭阴影的时间，随后顺滑复苏
+                setTimeout(() => {
+                    executeAudioPlay();
+                }, 300);
+            }
+        }
+
+        if (videoModalOverlay) {
+            videoModalOverlay.addEventListener('click', function(e) {
+                if (e.target === videoModalOverlay) {
+                    closeVideoModal();
+                }
+            });
+        }
+
+        // 位置更新函数
+        function updatePositions() {
+            const imgHeight = image.offsetHeight;
+            if(!imgHeight) return;
+            
+            const h1 = (320 / 11530) * imgHeight;
+            const h2 = (2080 / 11530) * imgHeight;
+            const h3 = (3980 / 11530) * imgHeight;
+            const h4 = (5880 / 11530) * imgHeight;
+            const h5 = (9850 / 11530) * imgHeight;
+
+            targetBorders = [
+                (1780 / 11530) * imgHeight,  
+                (3700 / 11530) * imgHeight,  
+                (5620 / 11530) * imgHeight,  
+                (7540 / 11530) * imgHeight,  
+                (9460 / 11530) * imgHeight   
+            ];
+
+            const carLeft = (775 / 1080) * 100; 
+            const carWidth = ((1038 - 775) / 1080) * 100;
+            const carTop = (6622 / 11530) * imgHeight;
+            const carHeight = ((7140 - 6622) / 11530) * imgHeight;
+            const hotspotHeight = ((6965 - 6622) / 11530) * imgHeight;
+
+            finCarImg.style.left = `${carLeft}%`;
+            finCarImg.style.width = `${carWidth}%`;
+            finCarImg.style.top = `${carTop}px`;
+            finCarImg.style.height = `${carHeight}px`;
+
+            finCarHotspot.style.left = `${carLeft}%`;
+            finCarHotspot.style.width = `${carWidth}%`;
+            finCarHotspot.style.top = `${carTop}px`;
+            finCarHotspot.style.height = `${hotspotHeight}px`;
+
+            const p5Top = (7680 / 11530) * imgHeight;
+            const p5Height = (1920 / 11530) * imgHeight;
+
+            pg01Layer.style.top = `${p5Top}px`;
+            pg01Layer.style.height = `${p5Height}px`;
+
+            pg02Layer.style.top = `${p5Top}px`;
+            pg02Layer.style.height = `${p5Height}px`;
+
+            const cleanBtnTop = p5Top + (350 / 11530) * imgHeight;
+            cleanBtn.style.top = `${cleanBtnTop}px`;
+            resetBtn.style.top = `${cleanBtnTop + 72}px`;
+            resetBtn.style.left = '50%';
+            resetBtn.style.transform = 'translateX(-50%)';
+            
+            halfCloudPixels = (207 / 11530) * imgHeight;
+
+            for (let i = 1; i <= 5; i++) {
+                const cloud = document.getElementById(`cloud${i}`);
+                if (cloud) {
+                    cloud.style.top = `${targetBorders[i-1] - halfCloudPixels}px`;
+                }
+            }
+            
+            document.getElementById('part1-title').style.top = `${h1}px`;
+            document.getElementById('part1-section').style.top = `${h1 + 170}px`;
+
+            document.getElementById('part2-title').style.top = `${h2 + 100}px`;
+            document.getElementById('part2-section').style.top = `${h2 + 320}px`;
+
+            document.getElementById('part3-title').style.top = `${h3 + 100}px`;
+            // 💡 针对第三幕由于塞入新视频按钮导致的物理高度变化，其承接位置已适配微调
+            document.getElementById('part3-section').style.top = `${h3 + 300}px`;
+
+            document.getElementById('part4-title').style.top = `${h4 + 100}px`;
+            document.getElementById('part4-section').style.top = `${h4 + 320}px`;
+
+            document.getElementById('part5-title').style.top = `${h5 + 100}px`;
+            document.getElementById('part5-section').style.top = `${h5 + 320}px`;
+            
+            document.getElementById('scrollGuide1').style.top = `${(1510 / 11530) * imgHeight}px`;
+            document.getElementById('scrollGuide2').style.top = `${(3410 / 11530) * imgHeight}px`;
+            document.getElementById('scrollGuide3').style.top = `${(5210 / 11530) * imgHeight}px`;
+            document.getElementById('scrollGuide4').style.top = `${(7210 / 11530) * imgHeight}px`;
+            
+            document.querySelectorAll('.chapter-title').forEach(t => {
+                t.style.left = '50%';
+                t.style.transform = 'translateX(-50%)';
+            });
+            document.querySelectorAll('.section').forEach(part => {
+                part.style.left = '50%';
+            });
+            
+            document.getElementById('content').style.height = `${imgHeight}px`;
+            
+            updateCloudParallax();
+        }
+
+        function updateCloudParallax() {
+            const scrollTop = window.scrollY;
+            const viewHeight = window.innerHeight;
+            const screenCenterY = scrollTop + (viewHeight / 2);
+            const parallaxFactor = 1;
+            const imgHeight = image.offsetHeight;
+            
+            const maxOffsetRanges = [
+                (80 / 11530) * imgHeight,  
+                (80 / 11530) * imgHeight,  
+                (80 / 11530) * imgHeight,  
+                (80 / 11530) * imgHeight,  
+                (80 / 11530) * imgHeight   
+            ]; 
+
+            for (let i = 1; i <= 5; i++) {
+                const cloud = document.getElementById(`cloud${i}`);
+                if (!cloud || !targetBorders[i-1]) continue;
+
+                const borderLine = targetBorders[i-1];
+                const localDelta = screenCenterY - borderLine;
+                const currentMaxRange = maxOffsetRanges[i-1];
+                
+                if (Math.abs(localDelta) < viewHeight) {
+                    let offset = localDelta * parallaxFactor;
+                    if (offset > currentMaxRange) offset = currentMaxRange;
+                    if (offset < -currentMaxRange) offset = -currentMaxRange;
+                    cloud.style.transform = `translateY(${offset}px)`;
+                } else {
+                    if(localDelta > 0) {
+                        cloud.style.transform = `translateY(${currentMaxRange}px)`;
+                    } else {
+                        cloud.style.transform = `translateY(${-currentMaxRange}px)`;
+                    }
+                }
+            }
+        }
+
+        function updateProgress() {
+            const scrollTop = window.scrollY;
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function openModal(title, textId) {
+            const fullHtml = document.getElementById(textId).innerHTML;
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalBody').innerHTML = fullHtml;
+            mainContainer.classList.add('blur-bg');
+            detailModal.classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeModal() {
+            mainContainer.classList.remove('blur-bg');
+            detailModal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        function setupScrollAnimations() {
+            const options = { root: null, rootMargin: '0px', threshold: 0.12 };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, options);
+            document.querySelectorAll('.section').forEach(section => observer.observe(section));
+        }
+
+        image.onload = () => {
+            updatePositions();
+            updateProgress();
+            setupScrollAnimations();
+        };
+        if (image.complete) {
+            updatePositions();
+            setupScrollAnimations();
+        }
+
+        window.addEventListener('resize', updatePositions);
+        window.addEventListener('scroll', () => {
+            updateProgress();
+            updateCloudParallax();
+        });
+    </script>
+</body>
+</html>

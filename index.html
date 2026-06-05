@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>洪流中的城科 - 开始</title>
+    <style>
+        /* 清除默认样式，确保全屏撑满 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: "Helvetica Neue", Helvetica, Arial, "Microsoft YaHei", sans-serif;
+            overflow: hidden;
+        }
+
+        /* 严格限制 9:16 分辨率容器 */
+        .container {
+            width: 1080px;
+            height: 1920px;
+            max-width: 100vw;
+            max-height: 100vh;
+            aspect-ratio: 9 / 16;
+            position: relative;
+            
+            /* 背景图片填充 */
+            background: url('begin.png') no-repeat center center;
+            background-size: cover;
+            
+            /* 居中布局内部元素 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            padding: 0 60px;
+        }
+
+        /* 新闻大标题 */
+        .news-title {
+            font-size: 72px; /* 略微放大，增强“洪流”的视觉冲击力 */
+            font-weight: bold;
+            line-height: 1.4;
+            text-align: center;
+            margin-bottom: 180px;
+            letter-spacing: 4px;
+        }
+
+        /* “进入现场” 按钮样式 */
+        .start-btn {
+            padding: 24px 80px;
+            font-size: 36px;
+            font-weight: 600;
+            color: #ffffff;
+            background: linear-gradient(135deg, #ff4e50, #f9d423); /* 融合新闻感渐变色 */
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255, 78, 80, 0.4);
+            transition: all 0.2s ease;
+            letter-spacing: 4px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 78, 80, 0.6);
+        }
+
+        .start-btn:active {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bgm" src="over_cover/BG02.MP3" loop></audio>
+
+    <div class="container">
+        
+        <h1 class="news-title">洪流中的城科</h1>
+
+        <button class="start-btn" id="startBtn">进入现场</button>
+
+    </div>
+
+    <script>
+        const bgm = document.getElementById('bgm');
+        const startBtn = document.getElementById('startBtn');
+
+        // 页面内产生任何点击，音频直接、立刻开始播放（突破浏览器初次打开的静音限制）
+        document.body.addEventListener('click', function() {
+            if (bgm.paused) {
+                bgm.play().catch(err => console.log("音频播放被拦截:", err));
+            }
+        }, { once: false });
+
+        // 点击按钮：立刻触发音频并执行无延迟跳转
+        startBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // 阻止冒泡
+            
+            // 直接播放音频
+            bgm.play(); 
+
+            // 零延迟，直接无缝跳转
+            window.location.href = 'over_cover/gemin.html';
+        });
+    </script>
+</body>
+</html>
