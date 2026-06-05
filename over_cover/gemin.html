@@ -598,24 +598,31 @@
 
         // 页面资源准备就绪后调度初始化
         window.addEventListener('DOMContentLoaded', () => {
-            mainAudio.volume = 0; // 初始化基础音量，准备淡入
 
-            // 1秒后延迟启动BGM
-            setTimeout(() => {
-                executeAudioPlay();
-            }, 1000);
+    // 初始音量
+    mainAudio.volume = 0.8;
 
-            // 移动端防自动播放拦截：只要用户触摸屏幕任意位置，且处于允许播放环境，则瞬时激活
-            const autoBurnishAudio = () => {
-                if (mainAudio.paused && !isUserMuted && !isVideoOpen) {
-                    executeAudioPlay();
-                }
-                document.removeEventListener('click', autoBurnishAudio);
-                document.removeEventListener('touchstart', autoBurnishAudio);
-            };
-            document.addEventListener('click', autoBurnishAudio);
-            document.addEventListener('touchstart', autoBurnishAudio);
-        });
+    // 利用 index 页面点击跳转继承用户手势
+    mainAudio.play()
+    .then(() => {
+        bgmControlBtn.classList.add('playing');
+    })
+    .catch(() => {
+
+        // 如果浏览器拦截，就等待用户第一次触摸
+        const unlockAudio = () => {
+            mainAudio.play().then(() => {
+                bgmControlBtn.classList.add('playing');
+            });
+
+            document.removeEventListener('touchstart', unlockAudio);
+            document.removeEventListener('click', unlockAudio);
+        };
+
+        document.addEventListener('touchstart', unlockAudio, { once: true });
+        document.addEventListener('click', unlockAudio, { once: true });
+    });
+});
 
         // 核心播放控制兼顾 0.5 秒淡入逻辑
         function executeAudioPlay() {
@@ -674,7 +681,7 @@
                     if (mainAudio.paused) {
                         executeAudioPlay();
                     } else {
-                        bgmControlBtn.add('playing');
+                        bgmControlBtn.classList.add('playing');
                     }
                 }
             } else {
